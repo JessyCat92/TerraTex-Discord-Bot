@@ -6,7 +6,7 @@ export const client = new Client();
 
 export async function initDiscordClient() {
     client.on('ready', () => {
-        console.log(`Logged in as ${client.user.tag}!`);
+        console.log(`Logged in as ${client.user?.tag || "unknown"}!`);
     });
 
     client.on('message', async msg => {

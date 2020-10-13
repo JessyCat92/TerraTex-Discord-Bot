@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 12",
+
+  "compilerOptions": {
+    "lib": [
+      "es2019",
+      "es2020",
+      "ES2018",
+      "ESNext"
+    ],
+    "module": "commonjs",
+    "target": "ESNEXT",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "strictPropertyInitialization": false
+  }
+}
