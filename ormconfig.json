@@ -1,0 +1,25 @@
+{
+  "name": "default",
+  "type": "mariadb",
+  "host": "localhost",
+  "port": 3306,
+  "username": "root",
+  "password": "Asdf123!",
+  "database": "discord_bot",
+  "synchronize": true,
+  "logging": false,
+  "entities": [
+    "src/db/entity/*"
+  ],
+  "subscribers": [
+    "src/db/subscriber/*"
+  ],
+  "migrations": [
+    "src/db/migration/*"
+  ],
+  "cli": {
+    "entitiesDir": "src/db/entity",
+    "migrationsDir": "src/db/migration",
+    "subscribersDir": "src/db/subscriber"
+  }
+}
