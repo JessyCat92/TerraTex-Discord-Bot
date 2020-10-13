@@ -19,6 +19,13 @@ jobs:
       - uses: actions/setup-node@v2.1.2
         with:
           node-version: 14.13
+      - name: Create .env file
+        uses: SpicyPizza/create-envfile@v1.0
+        with:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+
         
   backend:
     name: Build & Deploy Backend
@@ -28,11 +35,11 @@ jobs:
       - run: npm i
       - run: npm run build --if-present
       - run: npm test --if-present   
-#      - run: pm2 stop discord_bot_tt
-#        name: stop old application
+      - run: pm2 stop discord_bot_tt
+        name: stop old application
       - run: Remove-Item -Recurse -Force D:\TerraTex\Node-Apps\discord_bot\*  
         name: Remove old Application
       - run: Move-Item -Force -Path * -Destination D:\TerraTex\Node-Apps\discord_bot\  
         name: copy new application
-#      - run: pm2 start discord_bot_tt
-#        name: start new application
+      - run: pm2 start discord_bot_tt
+        name: start new application
