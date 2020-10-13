@@ -1,0 +1,38 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  setup:
+    name: Checkout
+    runs-on: tt-root
+    steps:
+#      - run: Remove-Item -Recurse -ErrorAction SilentlyContinue -Force D:\CI_CD\actions-runner\_work\minecraft_generator\minecraft_generator\*
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.1.2
+        with:
+          node-version: 14.13
+        
+  backend:
+    name: Build & Deploy Backend
+    needs: [setup]
+    runs-on: tt-root
+    steps:
+      - run: npm i
+      - run: npm run build --if-present
+      - run: npm test --if-present   
+#      - run: pm2 stop discord_bot_tt
+#        name: stop old application
+      - run: Remove-Item -Recurse -Force D:\TerraTex\Node-Apps\discord_bot\*  
+        name: Remove old Application
+      - run: Move-Item -Force -Path * -Destination D:\TerraTex\Node-Apps\discord_bot\  
+        name: copy new application
+#      - run: pm2 start discord_bot_tt
+#        name: start new application
