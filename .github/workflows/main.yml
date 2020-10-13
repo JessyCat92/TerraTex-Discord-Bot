@@ -21,12 +21,12 @@ jobs:
           node-version: 14.13
       - name: write env file
         run: |
-            echo "DISCORD_BOT_TOKEN:${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
-            echo "DISCORD_CLIENT_ID:${{ secrets.DISCORD_CLIENT_ID }}" >> .env
-            echo "DISCORD_CLIENT_SECRET:${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
-            echo "DB_DATABASE:${{ secrets.DB_DATABASE }}" >> .env
-            echo "DB_PASSWORD:${{ secrets.DB_PASSWORD }}" >> .env
-            echo "DB_USER:${{ secrets.DB_USER }}" >> .env
+            Set-Content -Path .env -Value "DISCORD_BOT_TOKEN:${{ secrets.DISCORD_BOT_TOKEN }}" -Encoding Ascii
+            Add-Content -Path .env -Value "DISCORD_CLIENT_ID:${{ secrets.DISCORD_CLIENT_ID }}" -Encoding Ascii
+            Add-Content -Path .env -Value "DISCORD_CLIENT_SECRET:${{ secrets.DISCORD_CLIENT_SECRET }}" -Encoding Ascii
+            Add-Content -Path .env -Value "DB_DATABASE:${{ secrets.DB_DATABASE }}" -Encoding Ascii
+            Add-Content -Path .env -Value "DB_PASSWORD:${{ secrets.DB_PASSWORD }}" -Encoding Ascii
+            Add-Content -Path .env -Value "DB_USER:${{ secrets.DB_USER }}" -Encoding Ascii
                 
   backend:
     name: Build & Deploy Backend
