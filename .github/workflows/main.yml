@@ -21,6 +21,7 @@ jobs:
           node-version: 14.13
       - name: write env file
         run: |
+            Set-Content -Path .env -Value "#generated file content" -Encoding utf8
             Set-Content -Path .env -Value "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" -Encoding utf8
             Add-Content -Path .env -Value "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" -Encoding utf8
             Add-Content -Path .env -Value "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" -Encoding utf8
