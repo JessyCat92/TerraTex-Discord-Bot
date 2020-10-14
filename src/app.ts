@@ -4,7 +4,7 @@ import * as fs from "fs";
 
 async function startApplication() {
     const file = fs.readFileSync(".env").toString("utf-8");
-    const regex = /(?<key>.*)=(?<value>.*)/g;
+    const regex = /(?<key>[a-z].*)=(?<value>.*)/gi;
     const result = Array.from(file.matchAll(regex));
     for (const k in result) {
         process.env[result[k].groups.key] = result[k].groups.value;
