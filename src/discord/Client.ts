@@ -16,10 +16,14 @@ export async function initDiscordClient() {
                 response += "pong ";
             }
 
-            msg.reply(response);
-        }
-        if (msg.content === 'nya') {
-            msg.reply('meow! ');
+            if (response.length >= 2000) {
+                response = response.substr(0, (2000 - 20 - msg.author.username.length));
+                await msg.reply(response);
+                await msg.reply("Das waren genug Pongs glaube ich :3 :P");
+            } else {
+                await msg.reply(response);
+            }
+
         }
 
         // if (msg.content === 'join') {
