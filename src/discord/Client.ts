@@ -1,15 +1,15 @@
-import {Client, Guild, VoiceChannel, VoiceConnection} from "discord.js";
-import ytdl = require("ytdl-core");
+import {Client} from "discord.js";
 
-
-export const client = new Client();
+export const discordClient = new Client();
 
 export async function initDiscordClient() {
-    client.on('ready', () => {
-        console.log(`Logged in as ${client.user?.tag || "unknown"}!`);
+    discordClient.on('ready', () => {
+        console.log(`Logged in as ${discordClient.user?.tag || "unknown"}!`);
+
+        require("./DefaultCommands/index");
     });
 
-    client.on('message', async msg => {
+    discordClient.on('message', async msg => {
         if (msg.content.indexOf("ping") !== -1) {
             let response = "";
             for (let i = 0;i < (msg.content.match(/ping/g) || ["ping"]).length; i++) {
@@ -32,12 +32,10 @@ export async function initDiscordClient() {
         //         msg.reply('You need to join a voice channel first!');
         //     }
         // }
-
-
     });
 
     try {
-        await client.login(process.env.DISCORD_BOT_TOKEN);
+        await discordClient.login(process.env.DISCORD_BOT_TOKEN);
     } catch (e) {
         console.error(e);
     }
