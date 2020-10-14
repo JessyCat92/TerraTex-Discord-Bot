@@ -3,7 +3,7 @@ import {initDiscordClient} from "./discord/Client";
 import * as fs from "fs";
 
 async function startApplication() {
-    const file = fs.readFileSync(".env").toString();
+    const file = fs.readFileSync(".env").toString("utf-8");
     const regex = /(?<key>.*)=(?<value>.*)/g;
     const result = Array.from(file.matchAll(regex));
     for (const k in result) {
