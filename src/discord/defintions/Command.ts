@@ -3,6 +3,7 @@ import {Message} from "discord.js";
 
 export class Command implements ICommand {
     permLevel: number = 0;
+    helpDescription: string = "No Description available";
     cmds: string[];
     func: Function;
 
@@ -14,5 +15,10 @@ export class Command implements ICommand {
 
     execute(msgObj: Message, ...params): void {
         this.func(msgObj, ...params);
+    }
+
+    setDescription(helpDescription): this {
+        this.helpDescription = helpDescription
+        return this;
     }
 }

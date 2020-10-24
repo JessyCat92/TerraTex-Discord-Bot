@@ -10,6 +10,7 @@ export interface ICommand {
      * 4 - System Owners or higher (@todo: group setup or custom user ID List?)
      */
     permLevel: number;
+    helpDescription: string;
     cmds: string[];
     execute(msgObj: Message, ...params: string[]): void;
 }

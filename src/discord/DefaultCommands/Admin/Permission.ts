@@ -12,7 +12,7 @@ registerCommand(new Command(4, ["perm"], (msgObj, subCommand,...perams) => {
         case "help":
         default: return helpPermission(msgObj);
     }
-}));
+}).setDescription("Befehl zum Managen der Permissions"));
 
 async function addPermission(msgObj: Message, ...params) {
     const permLevelObj = new Number(params[0]);

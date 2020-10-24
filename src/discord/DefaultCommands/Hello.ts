@@ -25,5 +25,5 @@ registerCommand(new Command(0,["hallo", "hey", "hi"], async (msgObj: Message) =>
     } else {
         await msgObj.reply("***sing*** Guten Abend, Gute Nacht, bald wirst du ins Bett gebracht :3 ***sing***");
     }
-}));
+}).setDescription("Sag mir Hallo!"));
 

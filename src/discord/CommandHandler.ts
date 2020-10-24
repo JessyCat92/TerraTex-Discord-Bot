@@ -4,8 +4,9 @@ import {v4 as uuid} from "uuid";
 import {hasPermissionLevel} from "./Permission";
 
 class CommandHandler {
+
     public _instance = this;
-    private cmdList: {[identifier: string]: ICommand} = {};
+    private _cmdList: {[identifier: string]: ICommand} = {};
 
     constructor() {
         discordClient.on('message',
@@ -19,10 +20,10 @@ class CommandHandler {
             const cmd = msgParts[0].slice(1).toLowerCase();
             msgParts.shift();
 
-            for (const identifier in this.cmdList) {
-                if (this.cmdList[identifier].cmds.indexOf(cmd) !== -1) {
-                    if (await hasPermissionLevel(msg, this.cmdList[identifier].permLevel)) {
-                        this.cmdList[identifier].execute(msg, ...msgParts);
+            for (const identifier in this._cmdList) {
+                if (this._cmdList[identifier].cmds.indexOf(cmd) !== -1) {
+                    if (await hasPermissionLevel(msg, this._cmdList[identifier].permLevel)) {
+                        this._cmdList[identifier].execute(msg, ...msgParts);
                     } else {
                         msg.reply("Du hast nicht die Berechtigung diesen Befehl zu nutzen!");
                     }
@@ -38,7 +39,7 @@ class CommandHandler {
      */
     public registerCommand(cmd: ICommand): string {
         const commandIdentifier = uuid();
-        this.cmdList[commandIdentifier] = cmd;
+        this._cmdList[commandIdentifier] = cmd;
         return commandIdentifier;
     }
 
@@ -47,7 +48,11 @@ class CommandHandler {
      * @param identifier unique identifier of command provided as return from {@link registerCommand}
      */
     public deRegisterCommand(identifier: string) {
-        delete this.cmdList[identifier];
+        delete this._cmdList[identifier];
+    }
+
+    get cmdList(): { [p: string]: ICommand } {
+        return this._cmdList;
     }
 }
 
