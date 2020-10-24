@@ -10,7 +10,7 @@ export async function loadDb() {
         synchronize: true,
         logging: false,
         entities: [
-            "src/db/entity/*"
+            "src/db/entities/*"
         ],
         subscribers: [
             "src/db/subscriber/*"
@@ -19,7 +19,7 @@ export async function loadDb() {
             "src/db/migration/*"
         ],
         cli: {
-            entitiesDir: "src/db/entity",
+            entitiesDir: "src/db/entities",
             migrationsDir: "src/db/migration",
             subscribersDir: "src/db/subscriber"
         }

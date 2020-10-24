@@ -3,7 +3,7 @@ import {Command} from "../defintions/Command";
 import {Message} from "discord.js";
 import moment from "moment-feiertage";
 
-registerCommand(new Command(["hallo", "hey", "hi"], async (msgObj: Message) => {
+registerCommand(new Command(0,["hallo", "hey", "hi"], async (msgObj: Message) => {
     const midnight = moment().startOf("day");
 
     const morning = moment().startOf("day").add(6, "h");
@@ -27,10 +27,3 @@ registerCommand(new Command(["hallo", "hey", "hi"], async (msgObj: Message) => {
     }
 }));
 
-// registerCommand(new Command(["ami"], (msg) => {
-//     if(msg.mentions.roles.has(msg.member.roles.highest.id)) {
-//         // msg.member.roles.cache.has()
-//         msg.reply("Ja du hast die Rolle @" + msg.member.roles.highest.name);
-//     }
-//
-// }))

@@ -4,7 +4,7 @@ import {Message} from "discord.js";
 import moment from "moment-feiertage";
 import {Moment} from "moment";
 
-registerCommand(new Command(["feiertag", "holiday"], async (msgObj: Message, next) => {
+registerCommand(new Command(0, ["feiertag", "holiday"], async (msgObj: Message, next) => {
     const holiday = moment().isHoliday([]) as IsHolidayResult;
 
     if (holiday.holidayStates.length > 0) {
@@ -62,7 +62,7 @@ async function sendResponse(holiday: IsHolidayResult, msgObj: Message, momentDat
             fullList.length === 1 ?
                 fullList[0] :
                 `${fullList.slice(0, -1).join(", ")} und ${fullList[fullList.length - 1]}`;
-        
+
         await msgObj.reply(`${dateString} ist ${holiday.holidayName} in ${countryList}!`);
     }
 }

@@ -1,6 +1,7 @@
 import {discordClient} from "./Client";
 import {ICommand} from "./defintions/ICommand";
 import {v4 as uuid} from "uuid";
+import {hasPermissionLevel} from "./Permission";
 
 class CommandHandler {
     public _instance = this;
@@ -20,7 +21,11 @@ class CommandHandler {
 
             for (const identifier in this.cmdList) {
                 if (this.cmdList[identifier].cmds.indexOf(cmd) !== -1) {
-                    this.cmdList[identifier].execute(msg, ...msgParts);
+                    if (await hasPermissionLevel(msg, this.cmdList[identifier].permLevel)) {
+                        this.cmdList[identifier].execute(msg, ...msgParts);
+                    } else {
+                        msg.reply("Du hast nicht die Berechtigung diesen Befehl zu nutzen!");
+                    }
                 }
             }
         }
