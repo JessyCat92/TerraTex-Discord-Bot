@@ -15,6 +15,8 @@ class CommandHandler {
     }
 
     private async executeCommand(msg) {
+        if (msg.channel.type === "dm") return;
+
         if (msg.content.startsWith("!")) {
             const msgParts = msg.content.split(" ");
             const cmd = msgParts[0].slice(1).toLowerCase();

@@ -51,6 +51,7 @@ registerCommand(new Command(0, ["help"], async (msg: Message, all: string) => {
         msgEmb.addField("Description", desc, true);
 
         await msg.author.send(msgEmb);
+        await msg.reply("Ich habe dir eine DM mit allen verfügbaren Befehlen gesendet :3 UwU")
     }
 
 }).setDescription("Zeigt aktuelle Hilfe an"));
