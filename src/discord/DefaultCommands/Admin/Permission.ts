@@ -80,7 +80,7 @@ async function listPermission(msgObj: Message) {
     const roleCollection = msgObj.guild.roles.cache;
 
     for (const perm of allPerms) {
-        groupsSorted[perm.permLevel].push(roleCollection.get(perm.snowflake).name);
+        groupsSorted[perm.permLevel].push(`<@&${roleCollection.get(perm.snowflake).id}>`);
     }
 
     const sendStrings = [];
