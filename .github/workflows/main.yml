@@ -41,14 +41,14 @@ jobs:
           username: root
           key: ${{ secrets.SSH_KEY }}
           port: 22
-#      - name: restarting Backend
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: 51.137.38.234
-#          username: azacuser
-#          key: ${{ secrets.SSH_KEY }}
-#          port: 22
-#          script: "pm2 restart 0"
+      - name: restarting Backend
+        uses: appleboy/ssh-action@master
+        with:
+          host: node.terratex.eu
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: "pm2 restart 0"
                 
 #  backend:
 #    name: Build & Deploy Backend
