@@ -12,7 +12,7 @@ on:
 jobs:
   setup:
     name: Checkout
-    runs-on: tt-root
+    runs-on: ubuntu-latest
     steps:
 #      - run: Remove-Item -Recurse -ErrorAction SilentlyContinue -Force D:\CI_CD\actions-runner\_work\minecraft_generator\minecraft_generator\*
       - uses: actions/checkout@v2
@@ -20,28 +20,49 @@ jobs:
         with:
           node-version: 14.13
       - name: write env file
-        run: |
-            Set-Content -Path .env -Value "#generated file content" -Encoding utf8
-            Set-Content -Path .env -Value "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" -Encoding utf8
-            Add-Content -Path .env -Value "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" -Encoding utf8
-            Add-Content -Path .env -Value "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" -Encoding utf8
-            Add-Content -Path .env -Value "DB_DATABASE=${{ secrets.DB_DATABASE }}" -Encoding utf8
-            Add-Content -Path .env -Value "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" -Encoding utf8
-            Add-Content -Path .env -Value "DB_USER=${{ secrets.DB_USER }}" -Encoding utf8
+        run: |            
+            echo DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }} >> .env
+            echo DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }} >> .env
+            echo DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }} >> .env          
+            echo DB_DATABASE=${{ secrets.DB_DATABASE }} >> .env
+            echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+            echo DB_USER=${{ secrets.DB_USER }} >> .env
+            npm i
+            npm run build --if-present    
+            npm test --if-present   
+            
+      - name: deploy backend
+        uses: appleboy/scp-action@master
+        with: 
+          source: "./"
+          host: node.terratex.eu 
+          strip_components: 1
+          target: /root/discord_bot
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+#      - name: restarting Backend
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: 51.137.38.234
+#          username: azacuser
+#          key: ${{ secrets.SSH_KEY }}
+#          port: 22
+#          script: "pm2 restart 0"
                 
-  backend:
-    name: Build & Deploy Backend
-    needs: [setup]
-    runs-on: tt-root
-    steps:
-      - run: npm i
-      - run: npm run build --if-present
-      - run: npm test --if-present   
-      - run: pm2 stop discord_bot_tt
-        name: stop old application
-      - run: Remove-Item -Recurse -Force D:\TerraTex\Node-Apps\discord_bot\*  
-        name: Remove old Application
-      - run: Move-Item -Force -Path * -Destination D:\TerraTex\Node-Apps\discord_bot\  
-        name: copy new application
-      - run: pm2 start discord_bot_tt
-        name: start new application
+#  backend:
+#    name: Build & Deploy Backend
+#    needs: [setup]
+#    runs-on: tt-root
+#    steps:
+#      - run: npm i
+#      - run: npm run build --if-present
+#      - run: npm test --if-present   
+#      - run: pm2 stop discord_bot_tt
+#        name: stop old application
+#      - run: Remove-Item -Recurse -Force D:\TerraTex\Node-Apps\discord_bot\*  
+#        name: Remove old Application
+#      - run: Move-Item -Force -Path * -Destination D:\TerraTex\Node-Apps\discord_bot\  
+#        name: copy new application
+#      - run: pm2 start discord_bot_tt
+#        name: start new application
