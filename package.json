@@ -28,7 +28,7 @@
     "discord.js": "^12.5.3",
     "dotenv": "^8.6.0",
     "ffmpeg-static": "^4.4.0",
-    "moment": "^2.15.2",
+    "moment": "^2.19.3",
     "moment-feiertage": "^2.0.6",
     "mysql": "^2.18.1",
     "stringinject": "^2.1.1",
