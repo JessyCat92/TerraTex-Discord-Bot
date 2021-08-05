@@ -4,7 +4,7 @@ import {Message} from "discord.js";
 import moment from "moment-feiertage";
 import {Moment} from "moment";
 
-registerCommand(new Command(0, ["feiertag", "holiday"], async (msgObj: Message, next) => {
+registerCommand(new Command(0, ["feiertag", "holiday"], async (msgObj: Message, next = "") => {
     const holiday = moment().isHoliday([]) as IsHolidayResult;
 
     if (holiday.holidayStates.length > 0) {

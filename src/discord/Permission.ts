@@ -3,7 +3,8 @@ import {Permissions} from "../db/entities/Permissions";
 import {MoreThanOrEqual} from "typeorm";
 
 export async function hasPermissionLevel(msg: Message, level: number): Promise<boolean> {
-    if (level === 0) return true;
+    if (level === 0)
+        return true;
     if (level === 4) {
         if (msg.author.id === msg.guild.ownerID) return true;
     }

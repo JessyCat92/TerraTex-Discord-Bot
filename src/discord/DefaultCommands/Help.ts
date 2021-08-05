@@ -3,7 +3,7 @@ import {Message, MessageEmbed} from "discord.js";
 import {Command} from "../defintions/Command";
 import {hasPermissionLevel} from "../Permission";
 
-registerCommand(new Command(0, ["help"], async (msg: Message, all: string) => {
+registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message, all: string) => {
     const cmdsSorted: {[permLevel: number]: any} = {
         0: [], 1: [], 2: [], 3: [], 4: []
     };
@@ -31,7 +31,8 @@ registerCommand(new Command(0, ["help"], async (msg: Message, all: string) => {
         });
     }
 
-    for (const level in cmdsSorted) {
+    for (const levelAsStr in cmdsSorted) {
+        const level = parseInt(levelAsStr, 10);
         if (cmdsSorted[level].length === 0) continue;
         // @ts-ignore
         if (!await hasPermissionLevel(msg, level)) continue;

@@ -12,7 +12,7 @@ export async function initDiscordClient() {
     discordClient.on('message', async msg => {
         if (msg.content.indexOf("ping") !== -1) {
             let response = "";
-            for (let i = 0;i < (msg.content.match(/ping/g) || ["ping"]).length; i++) {
+            for (let i = 0;i < (msg.content.match(/ping/ig) || ["ping"]).length; i++) {
                 response += "pong ";
             }
 
