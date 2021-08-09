@@ -3,7 +3,7 @@ import {Message, MessageEmbed} from "discord.js";
 import {Command} from "../defintions/Command";
 import {hasPermissionLevel} from "../Permission";
 
-registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message, all: string) => {
+registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message) => {
         const cmdsSorted: { [permLevel: number]: any } = {
             0: [], 1: [], 2: [], 3: [], 4: []
         };
