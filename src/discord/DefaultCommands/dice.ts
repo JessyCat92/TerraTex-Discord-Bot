@@ -11,6 +11,9 @@ registerCommand(new Command(0,["dice"], async (msgObj: Message, sidesArg: string
         numbers.push(Math.floor(Math.random() * sides) + 1);
     }
 
-    msgObj.reply(`Du hast folgende Zahlen mit deinen ${sides}-seitigen Würfel gewürfelt: ${numbers.join(", ")}`);
+    await msgObj.reply(`Du hast folgende Zahlen mit deinen ${sides}-seitigen Würfel gewürfelt: ${numbers.join(", ")}`);
 
-}).setDescription("Wirf einen Würfel!"));
+})
+    .setDescription("Wirf einen Würfel!")
+    .enableSlashCommand()
+);

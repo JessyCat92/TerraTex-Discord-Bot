@@ -6,6 +6,7 @@ export class Command implements ICommand {
     helpDescription: string = "No Description available";
     cmds: string[];
     func: Function;
+    slash: boolean = false;
 
     constructor(permLevel:number, cmds: string[], executeFunc: (msgObj: Message, ...params: string[]) => any) {
         this.cmds = cmds;
@@ -19,6 +20,11 @@ export class Command implements ICommand {
 
     setDescription(helpDescription): this {
         this.helpDescription = helpDescription
+        return this;
+    }
+
+    enableSlashCommand(): this {
+        this.slash = true;
         return this;
     }
 }

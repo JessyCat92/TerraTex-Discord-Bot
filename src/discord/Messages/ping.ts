@@ -9,7 +9,7 @@ interface UserPingEntry {
 
 const maxLength = 300;
 
-discordClient.on('message', async msg => {
+discordClient.on('messageCreate', async msg => {
     if (msg.author.bot) return;
 
     const pings = msg.content.match(/ping/ig);

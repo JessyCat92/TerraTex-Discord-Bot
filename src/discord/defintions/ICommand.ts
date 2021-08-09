@@ -12,5 +12,6 @@ export interface ICommand {
     permLevel: number;
     helpDescription: string;
     cmds: string[];
+    slash: boolean;
     execute(msgObj: Message, ...params: string[]): void;
 }

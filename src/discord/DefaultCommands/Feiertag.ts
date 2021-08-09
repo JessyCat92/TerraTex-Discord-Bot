@@ -22,7 +22,10 @@ registerCommand(new Command(0, ["feiertag", "holiday"], async (msgObj: Message, 
     } else {
         await msgObj.reply("Heute ist kein Feiertag!");
     }
-}).setDescription("Ist Feiertag? oder mit `!holiday next` Wann ist der nächste?"));
+})
+    .setDescription("Ist Feiertag? oder mit `!holiday next` Wann ist der nächste?")
+    .enableSlashCommand()
+);
 
 
 async function sendResponse(holiday: IsHolidayResult, msgObj: Message, momentData: Moment = null) {

@@ -1,5 +1,5 @@
 import {loadDb} from "./db/loadDb";
-import {initDiscordClient} from "./discord/Client";
+import {createClient, discordClient, initDiscordClient} from "./discord/Client";
 import * as fs from "fs";
 import moment from "moment";
 import "moment/locale/de";
@@ -14,8 +14,8 @@ async function startApplication() {
     }
     //set moment locale
     moment.locale("de");
-
     await loadDb();
+    await createClient();
     await initDiscordClient();
 
 }

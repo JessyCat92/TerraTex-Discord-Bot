@@ -20,7 +20,7 @@ async function addPermission(msgObj: Message, ...params) {
         const permLevel = permLevelObj.valueOf();
         const newRoles = [];
 
-        for (const role of msgObj.mentions.roles.array()) {
+        for (const role of [...msgObj.mentions.roles.values()]) {
             const snowflake = role.id;
             let perm = await Permissions.findOne({
                 where: {
@@ -54,7 +54,7 @@ async function removePermission(msgObj: Message) {
     if(msgObj.mentions.roles.size >= 1) {
         try {
             const snowsflakes = [];
-            for (const role of msgObj.mentions.roles.array()) {
+            for (const role of [...msgObj.mentions.roles.values()]) {
                 snowsflakes.push(role.id);
             }
 
@@ -99,7 +99,7 @@ async function listPermission(msgObj: Message) {
         .addField("PermLevel 3 = Administrative Functions", sendStrings[2])
         .addField("PermLevel 4 = Owner Functions", sendStrings[3]);
 
-    return msgObj.reply("Permission List: ", embMsg);
+    return msgObj.reply({content: "Permission List", embeds: [embMsg]});
 }
 
 async function helpPermission(msgObj: Message) {

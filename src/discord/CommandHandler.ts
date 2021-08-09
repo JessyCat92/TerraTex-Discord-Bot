@@ -9,7 +9,7 @@ class CommandHandler {
     private _cmdList: {[identifier: string]: ICommand} = {};
 
     constructor() {
-        discordClient.on('message',
+        discordClient.on('messageCreate',
             msg => this.executeCommand(msg)
         );
     }
@@ -42,7 +42,17 @@ class CommandHandler {
     public registerCommand(cmd: ICommand): string {
         const commandIdentifier = uuid();
         this._cmdList[commandIdentifier] = cmd;
+        this.enableSlashCommands(cmd);
         return commandIdentifier;
+    }
+
+    private enableSlashCommands(cmd: ICommand) {
+            if (cmd.slash) {
+                [...discordClient.guilds.cache.values()][0].commands.create({
+                    name: cmd.cmds[0],
+                    description: cmd.helpDescription
+                });
+            }
     }
 
     /**
