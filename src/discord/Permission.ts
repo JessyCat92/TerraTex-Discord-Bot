@@ -6,7 +6,7 @@ export async function hasPermissionLevel(msg: Message, level: number): Promise<b
     if (level === 0)
         return true;
     if (level === 4) {
-        if (msg.author.id === msg.guild.ownerID) return true;
+        if (msg.author.id === msg.guild.ownerId) return true;
     }
 
     const allowedPermissions = await Permissions.find({

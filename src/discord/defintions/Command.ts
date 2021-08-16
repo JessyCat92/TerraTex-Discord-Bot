@@ -1,13 +1,14 @@
 import {ICommand} from "./ICommand";
-import {Message} from "discord.js";
+import {CommandInteraction, Message} from "discord.js";
+import {SlashCommandBuilder} from "@discordjs/builders";
 
 export class Command implements ICommand {
     permLevel: number = 0;
     helpDescription: string = "No Description available";
     cmds: string[];
-    func: Function;
+    func: commandExecute;
 
-    constructor(permLevel:number, cmds: string[], executeFunc: (msgObj: Message, ...params: string[]) => any) {
+    constructor(permLevel:number, cmds: string[], executeFunc: commandExecute) {
         this.cmds = cmds;
         this.func = executeFunc;
         this.permLevel = permLevel;
@@ -21,4 +22,10 @@ export class Command implements ICommand {
         this.helpDescription = helpDescription
         return this;
     }
+
 }
+
+export interface commandExecute {
+    (msgObj: Message, ...params: String[]): void;
+}
+

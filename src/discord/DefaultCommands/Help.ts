@@ -2,6 +2,8 @@ import {registerCommand, cmdList} from "../CommandHandler"
 import {Message, MessageEmbed} from "discord.js";
 import {Command} from "../defintions/Command";
 import {hasPermissionLevel} from "../Permission";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {SlashCommand} from "../defintions/SlashCommand";
 
 registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message) => {
         const cmdsSorted: { [permLevel: number]: any } = {
@@ -51,9 +53,9 @@ registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message) => {
             msgEmb.addField("Cmds", cmds, true);
             msgEmb.addField("Description", desc, true);
 
-            await msg.author.send(msgEmb);
+            await msg.author.send({embeds: [msgEmb]});
         }
         await msg.reply("Ich habe dir eine DM mit allen verfügbaren Befehlen gesendet :3 UwU")
     })
-    .setDescription("Zeigt aktuelle Hilfe an")
+    .setDescription("Zeigt aktuelle Hilfe an - alle Commands mit ! prefix")
 );

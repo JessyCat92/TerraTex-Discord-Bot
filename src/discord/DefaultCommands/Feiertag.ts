@@ -1,10 +1,34 @@
-import {registerCommand} from "../CommandHandler";
+import {registerCommand, registerSlashCommand} from "../CommandHandler";
 import {Command} from "../defintions/Command";
-import {Message} from "discord.js";
+import {CommandInteraction, Message} from "discord.js";
 import moment from "moment-feiertage";
 import {Moment} from "moment";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {SlashCommand} from "../defintions/SlashCommand";
 
 registerCommand(new Command(0, ["feiertag", "holiday"], async (msgObj: Message, next = "") => {
+
+}).setDescription("Ist Feiertag? oder mit `!holiday next` Wann ist der nächste?"));
+
+registerSlashCommand(
+    new SlashCommand(
+        new SlashCommandBuilder()
+            .setDescription("Ist Feiertag / Welcher ist der nächste?")
+            .setName("holiday")
+            .addBooleanOption(option =>
+                option
+                    .setName("next")
+                    .setDescription("Nächster?")
+                    .setRequired(false)
+            ),
+        async interaction => {
+            await calcResponse(interaction, interaction.options.getBoolean("next", false) ? "next" : "");
+        }
+    )
+);
+
+
+async function calcResponse(msgObj : Message | CommandInteraction, next: string) {
     const holiday = moment().isHoliday([]) as IsHolidayResult;
 
     if (holiday.holidayStates.length > 0) {
@@ -22,10 +46,9 @@ registerCommand(new Command(0, ["feiertag", "holiday"], async (msgObj: Message, 
     } else {
         await msgObj.reply("Heute ist kein Feiertag!");
     }
-}).setDescription("Ist Feiertag? oder mit `!holiday next` Wann ist der nächste?"));
+}
 
-
-async function sendResponse(holiday: IsHolidayResult, msgObj: Message, momentData: Moment = null) {
+async function sendResponse(holiday: IsHolidayResult, msgObj: Message | CommandInteraction, momentData: Moment = null) {
     let dateString = "Heute";
     if (momentData !== null) {
         dateString = `Am ${momentData.date()}.${momentData.month() + 1}.${momentData.year()}`;
