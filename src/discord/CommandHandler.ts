@@ -2,16 +2,21 @@ import {discordClient} from "./Client";
 import {ICommand} from "./defintions/ICommand";
 import {v4 as uuid} from "uuid";
 import {hasPermissionLevel} from "./Permission";
+import {SlashCommand} from "./defintions/SlashCommand";
+import {CommandInteraction} from "discord.js";
 
 class CommandHandler {
 
     public _instance = this;
     private _cmdList: {[identifier: string]: ICommand} = {};
+    private _slashCmdList: {[cmdName: string]: ICommand} = {};
 
     constructor() {
         discordClient.on('messageCreate',
             msg => this.executeCommand(msg)
         );
+
+        discordClient.on('interactionCreate', interaction => this.executeSlashCommand(interaction));
     }
 
     private async executeCommand(msg) {
@@ -34,25 +39,32 @@ class CommandHandler {
         }
     }
 
+    private async executeSlashCommand(interaction: CommandInteraction) {
+        if(!interaction.isCommand()) return;
+
+        // @ts-ignore
+        this._slashCmdList[interaction.commandName].execute(interaction);
+    }
+
     /**
      * Registers Command
      * @param cmd Command Object from Interface {@link ICommand} or Instance of {@link Command}
-     * @return unique Identifier of Command to manage command later in manager
+     * @return string unique Identifier of Command to manage command later in manager
      */
     public registerCommand(cmd: ICommand): string {
         const commandIdentifier = uuid();
         this._cmdList[commandIdentifier] = cmd;
-        this.enableSlashCommands(cmd);
         return commandIdentifier;
     }
 
-    private enableSlashCommands(cmd: ICommand) {
-            if (cmd.slash) {
-                [...discordClient.guilds.cache.values()][0].commands.create({
-                    name: cmd.cmds[0],
-                    description: cmd.helpDescription
-                });
-            }
+    /**
+     * Registers Slash Command Executer
+     * @param cmd Command Object from Interface {@link ICommand} or Instance of {@link SlashCommand}
+     * @return void
+     */
+    public registerSlashCommand(cmd: SlashCommand) {
+        this._slashCmdList[cmd.cmds[0]] = cmd;
+        [...discordClient.guilds.cache.values()][0].commands.create(cmd.command.toJSON());
     }
 
     /**
