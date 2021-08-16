@@ -27,10 +27,20 @@ export async function createClient () {
 }
 
 export async function initDiscordClient() {
-    discordClient.on('ready', () => {
+    discordClient.on('ready', async () => {
         console.log(`Logged in as ${discordClient.user?.tag || "unknown"}!`);
 
         require("./DefaultCommands/index");
+
+        const cmds = await [...discordClient.guilds.cache.values()][0].commands.fetch();
+
+        const cmdHandler = require("./CommandHandler");
+        const registeredCmds = Object.keys(cmdHandler.slashCmdList);
+
+        for ( const cmd of cmds) {
+            if (registeredCmds.indexOf(cmd[1].name) === -1 )
+                cmd[1].delete();
+        }
     });
 
     require("./Messages/index");

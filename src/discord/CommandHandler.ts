@@ -9,7 +9,7 @@ class CommandHandler {
 
     public _instance = this;
     private _cmdList: {[identifier: string]: ICommand} = {};
-    private _slashCmdList: {[cmdName: string]: ICommand} = {};
+    private _slashCmdList: {[cmdName: string]: SlashCommand} = {};
 
     constructor() {
         discordClient.on('messageCreate',
@@ -65,6 +65,7 @@ class CommandHandler {
     public registerSlashCommand(cmd: SlashCommand) {
         this._slashCmdList[cmd.cmds[0]] = cmd;
         [...discordClient.guilds.cache.values()][0].commands.create(cmd.command.toJSON());
+
     }
 
     /**
@@ -77,6 +78,10 @@ class CommandHandler {
 
     get cmdList(): { [p: string]: ICommand } {
         return this._cmdList;
+    }
+
+    get slashCmdList(): { [cmd: string]: SlashCommand } {
+        return this._slashCmdList;
     }
 }
 
