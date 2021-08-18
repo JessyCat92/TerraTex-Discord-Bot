@@ -59,7 +59,6 @@ registerSlashCommand(
 
 
 async function calcResponse(msgObj : CommandInteraction) {
-    console.log(getAllStateCodes());
 
     let filter: string|string[] = [];
     const selectedFilter = msgObj.options.getString("country");
@@ -98,7 +97,6 @@ async function sendResponse(holiday: IsHolidayResult, msgObj: CommandInteraction
     if (momentData !== null) {
         dateString = `Am ${momentData.date()}.${momentData.month() + 1}.${momentData.year()}`;
     }
-
 
     if (holiday.allStates) {
         await msgObj.reply(`${dateString} ist ein Bundesweiter Feiertag: ${holiday.holidayName}!`);
