@@ -1,6 +1,6 @@
 import {registerSlashCommand} from "../CommandHandler";
 import {CommandInteraction} from "discord.js";
-import moment, {getAllStateCodes} from "moment-feiertage";
+import moment from "moment-feiertage";
 import {Moment} from "moment";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
