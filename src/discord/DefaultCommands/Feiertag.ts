@@ -1,11 +1,9 @@
-import {registerCommand, registerSlashCommand} from "../CommandHandler";
-import {Command} from "../defintions/Command";
-import {CommandInteraction, Message} from "discord.js";
+import {registerSlashCommand} from "../CommandHandler";
+import {CommandInteraction} from "discord.js";
 import moment, {getAllStateCodes} from "moment-feiertage";
 import {Moment} from "moment";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
-import {secureHeapUsed} from "crypto";
 
 const stateCodes = {
     ALL: "Alle",
@@ -37,7 +35,7 @@ registerSlashCommand(
     new SlashCommand(
         new SlashCommandBuilder()
             .setDescription("Ist Feiertag / Welcher ist der nächste?")
-            .setName("dev_holiday")
+            .setName("holiday")
             .addBooleanOption(option =>
                 option
                     .setName("next")
