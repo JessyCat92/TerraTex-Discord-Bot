@@ -1,9 +1,10 @@
 import {registerCommand, registerSlashCommand} from "../CommandHandler";
 import {Command} from "../defintions/Command";
 import {CommandInteraction, Message} from "discord.js";
-import moment from "moment-feiertage";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
+
+/*
 
 registerCommand(new Command(0, ["hallo", "hey", "hi"], async (msgObj: Message) => {
         await sayHello(msgObj);
@@ -11,9 +12,8 @@ registerCommand(new Command(0, ["hallo", "hey", "hi"], async (msgObj: Message) =
         .setDescription("Sag mir Hallo!")
 );
 
+@FIXME: this script is not working completely
 async function sayHello(msgObj: Message | CommandInteraction) {
-    const midnight = moment().startOf("day");
-
     const morning = moment().startOf("day").add(6, "h");
     const lunch = moment().startOf("day").add(12, "h");
     const afternoon = moment().startOf("day").add(14, "h");
@@ -42,3 +42,5 @@ registerSlashCommand(
             .setDescription("Maid begrüße mich!"),
         interaction => sayHello(interaction))
 );
+
+ */

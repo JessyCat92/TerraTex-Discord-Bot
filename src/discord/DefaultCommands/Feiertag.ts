@@ -1,13 +1,13 @@
 import {registerSlashCommand} from "../CommandHandler";
 import {CommandInteraction} from "discord.js";
-import moment from "moment-feiertage";
-import {Moment} from "moment";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
+import Holidays, {HolidaysTypes} from "date-holidays"
+import {calcDate} from "../../utils/DateTime";
 
 const stateCodes = {
-    ALL: "Alle",
-    GER: "nur Bundesweite",
+//    ALL: "Alle",
+    PUBLIC: "nur Bundesweite",
     BW: "Baden-Württemberg",
     BY: "Bayern",
     BE: "Berlin",
@@ -27,7 +27,7 @@ const stateCodes = {
 }
 
 const stateCodeChoices = [];
-for (const code in stateCodes){
+for (const code in stateCodes) {
     stateCodeChoices.push([stateCodes[code], code]);
 }
 
@@ -35,7 +35,7 @@ registerSlashCommand(
     new SlashCommand(
         new SlashCommandBuilder()
             .setDescription("Ist Feiertag / Welcher ist der nächste?")
-            .setName("holiday")
+            .setName("tholiday")
             .addBooleanOption(option =>
                 option
                     .setName("next")
@@ -50,6 +50,13 @@ registerSlashCommand(
                     .addChoices(
                         stateCodeChoices
                     )
+            )
+            .addBooleanOption(
+                option =>
+                    option
+                        .setName("optional")
+                        .setDescription("Inklusive optionaller Brückentage?")
+                        .setRequired(false)
             ),
         async interaction => {
             await calcResponse(interaction);
@@ -57,66 +64,56 @@ registerSlashCommand(
     )
 );
 
+async function calcResponse(msgObj: CommandInteraction) {
+    const country = msgObj.options.getString("country") || "PUBLIC";
+    const isNext = msgObj.options.getBoolean("next") || false;
+    const inclOptionals = msgObj.options.getBoolean("optional") || false;
 
-async function calcResponse(msgObj : CommandInteraction) {
+    const holidays = new Holidays({
+        country: "DE",
+        state: country !== "PUBLIC" ? country : null
+    }, {
+        languages: "de",
+        types: inclOptionals ? [
+            "public",
+            "optional",
+            "bank",
+        ] : [
+            "public"
+        ]
+    });
 
-    let filter: string|string[] = [];
-    const selectedFilter = msgObj.options.getString("country");
-    if (selectedFilter === "GER") {
-        filter = [];
-    } else if (selectedFilter === "ALL") {
-        filter = [];
-        for (const code in stateCodes){
-            filter.push(code);
-        }
-    } else {
-        filter = [selectedFilter];
-    }
+    const today = holidays.isHoliday(new Date());
 
-    const holiday = moment().isHoliday(selectedFilter) as IsHolidayResult;
+    if (!today) {
+        if (isNext) {
+            for (let i = 1; i <= 90; i++) {
+                const nextHoliday = holidays.isHoliday(calcDate(new Date(), {
+                    timeString: `${i}d`
+                }));
 
-    if ((holiday.holidayStates && holiday.holidayStates.length > 0) && !(!holiday.allStates && selectedFilter === "GER")) {
-        await sendResponse(holiday, msgObj);
-    } else if (msgObj.options.getBoolean("next")) {
-        for (let i = 1; i <= 90; i++) {
-            const momentData = moment().add(i, "d");
-            const nextHoliday = momentData.isHoliday(filter) as IsHolidayResult;
-            if ((nextHoliday.holidayStates && nextHoliday.holidayStates.length > 0) && !(!nextHoliday.allStates && selectedFilter === "GER")) {
-                return await sendResponse(nextHoliday, msgObj, momentData);
+                if (nextHoliday && nextHoliday.length > 0) {
+                    return await sendResonse(msgObj, nextHoliday[0]);
+                }
             }
-        }
 
-        return msgObj.reply("Es gibt keine Feiertage in den nächsten 90 Tagen...")
-    } else {
-        await msgObj.reply("Heute ist kein Feiertag!");
+            await msgObj.reply("Heute und in den nächsten 90 Tagen ist kein Feiertag!");
+        } else {
+            await msgObj.reply("Heute ist kein Feiertag!");
+        }
     }
 }
 
-async function sendResponse(holiday: IsHolidayResult, msgObj: CommandInteraction, momentData: Moment = null) {
-    let dateString = "Heute";
-    if (momentData !== null) {
-        dateString = `Am ${momentData.date()}.${momentData.month() + 1}.${momentData.year()}`;
-    }
+async function sendResonse(msgObj: CommandInteraction, holiday: HolidaysTypes.Holiday) {
+    const date = new Intl.DateTimeFormat("de", {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+        // @ts-ignore
+    }).format(new Date(holiday.date));
 
-    if (holiday.allStates) {
-        await msgObj.reply(`${dateString} ist ein Bundesweiter Feiertag: ${holiday.holidayName}!`);
-    } else {
-        const fullList = [];
-        for (const index in holiday.holidayStates) {
-            fullList.push(stateCodes[holiday.holidayStates[index]]);
-        }
-        let countryList =
-            fullList.length === 1 ?
-                fullList[0] :
-                `${fullList.slice(0, -1).join(", ")} und ${fullList[fullList.length - 1]}`;
-
-        await msgObj.reply(`${dateString} ist ${holiday.holidayName} in ${countryList}!`);
-    }
-}
-
-interface IsHolidayResult {
-    allStates: boolean;
-    holidayName: string;
-    holidayStates: Array<string>;
-    testedStates: Array<string>;
+    await msgObj.reply(
+        `Am ${date} ist ${holiday.name}.`
+    );
 }

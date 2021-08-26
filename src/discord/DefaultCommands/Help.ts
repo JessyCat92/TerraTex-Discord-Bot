@@ -2,8 +2,6 @@ import {registerCommand, cmdList} from "../CommandHandler"
 import {Message, MessageEmbed} from "discord.js";
 import {Command} from "../defintions/Command";
 import {hasPermissionLevel} from "../Permission";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommand} from "../defintions/SlashCommand";
 
 registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message) => {
         const cmdsSorted: { [permLevel: number]: any } = {

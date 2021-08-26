@@ -1,7 +1,6 @@
 import {loadDb} from "./db/loadDb";
-import {createClient, discordClient, initDiscordClient} from "./discord/Client";
+import {createClient, initDiscordClient} from "./discord/Client";
 import * as fs from "fs";
-import moment from "moment";
 import "moment/locale/de";
 
 async function startApplication() {
@@ -12,8 +11,8 @@ async function startApplication() {
     for (const k in result) {
         process.env[result[k].groups.key] = result[k].groups.value;
     }
-    //set moment locale
-    moment.locale("de");
+    // @todo: do we have to set locale to german?
+
     await loadDb();
     await createClient();
     await initDiscordClient();

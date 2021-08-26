@@ -1,7 +1,6 @@
 import {ICommand} from "./ICommand";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {CommandInteraction, Message} from "discord.js";
-import {discordClient} from "../Client";
+import {CommandInteraction} from "discord.js";
 
 
 export class SlashCommand implements ICommand {

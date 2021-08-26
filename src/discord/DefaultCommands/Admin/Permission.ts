@@ -15,7 +15,7 @@ registerCommand(new Command(4, ["perm"], (msgObj, subCommand,...perams) => {
 }).setDescription("Befehl zum Managen der Permissions"));
 
 async function addPermission(msgObj: Message, ...params) {
-    const permLevelObj = new Number(params[0]);
+    const permLevelObj = Number(params[0]);
     if(permLevelObj && msgObj.mentions.roles.size >= 1) {
         const permLevel = permLevelObj.valueOf();
         const newRoles = [];

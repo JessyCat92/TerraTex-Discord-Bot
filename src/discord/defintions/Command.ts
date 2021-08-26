@@ -1,6 +1,5 @@
 import {ICommand} from "./ICommand";
-import {CommandInteraction, Message} from "discord.js";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {Message} from "discord.js";
 
 export class Command implements ICommand {
     permLevel: number = 0;
