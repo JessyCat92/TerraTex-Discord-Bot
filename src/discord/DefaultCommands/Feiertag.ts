@@ -1,13 +1,12 @@
 import {registerSlashCommand} from "../CommandHandler";
 import {CommandInteraction} from "discord.js";
-import moment from "moment-feiertage";
-import {Moment} from "moment";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
+import Holidays, {HolidaysTypes} from "date-holidays"
+import {calcDate} from "../../utils/DateTime";
 
 const stateCodes = {
-    ALL: "Alle",
-    GER: "nur Bundesweite",
+    PUBLIC: "nur Bundesweite",
     BW: "Baden-Württemberg",
     BY: "Bayern",
     BE: "Berlin",
@@ -27,15 +26,18 @@ const stateCodes = {
 }
 
 const stateCodeChoices = [];
-for (const code in stateCodes){
+stateCodeChoices.push(["Alle", "ALL"]);
+for (const code in stateCodes) {
     stateCodeChoices.push([stateCodes[code], code]);
 }
+
+const stateObjects = {};
 
 registerSlashCommand(
     new SlashCommand(
         new SlashCommandBuilder()
             .setDescription("Ist Feiertag / Welcher ist der nächste?")
-            .setName("holiday")
+            .setName("tholiday")
             .addBooleanOption(option =>
                 option
                     .setName("next")
@@ -50,6 +52,13 @@ registerSlashCommand(
                     .addChoices(
                         stateCodeChoices
                     )
+            )
+            .addBooleanOption(
+                option =>
+                    option
+                        .setName("optional")
+                        .setDescription("Inklusive optionaller Brückentage?")
+                        .setRequired(false)
             ),
         async interaction => {
             await calcResponse(interaction);
@@ -57,66 +66,149 @@ registerSlashCommand(
     )
 );
 
+async function calcResponse(msgObj: CommandInteraction) {
+    const country = msgObj.options.getString("country") || "PUBLIC";
+    const isNext = msgObj.options.getBoolean("next") || false;
+    const inclOptionals = msgObj.options.getBoolean("optional") || false;
 
-async function calcResponse(msgObj : CommandInteraction) {
-
-    let filter: string|string[] = [];
-    const selectedFilter = msgObj.options.getString("country");
-    if (selectedFilter === "GER") {
-        filter = [];
-    } else if (selectedFilter === "ALL") {
-        filter = [];
-        for (const code in stateCodes){
-            filter.push(code);
+    // create Holiday Objects per State
+    for (const code in stateCodes) {
+        stateObjects[code] = {
+            holidayObj: new Holidays({
+                country: "DE",
+                state: code !== "PUBLIC" ? code : null
+            }, {
+                languages: "de",
+                types: inclOptionals ? [
+                    "public",
+                    "optional",
+                    "bank",
+                ] : [
+                    "public"
+                ]
+            })
         }
-    } else {
-        filter = [selectedFilter];
     }
 
-    const holiday = moment().isHoliday(selectedFilter) as IsHolidayResult;
+    // calculate all holidays of next 90 days
+    const holidaysPerDay: { [name: string]: HolidayData }[] = [];
+    for (let i = 0; i <= 90; i++) {
+        let foundHolidays = {};
 
-    if ((holiday.holidayStates && holiday.holidayStates.length > 0) && !(!holiday.allStates && selectedFilter === "GER")) {
-        await sendResponse(holiday, msgObj);
-    } else if (msgObj.options.getBoolean("next")) {
-        for (let i = 1; i <= 90; i++) {
-            const momentData = moment().add(i, "d");
-            const nextHoliday = momentData.isHoliday(filter) as IsHolidayResult;
-            if ((nextHoliday.holidayStates && nextHoliday.holidayStates.length > 0) && !(!nextHoliday.allStates && selectedFilter === "GER")) {
-                return await sendResponse(nextHoliday, msgObj, momentData);
+        for (const code in stateCodes) {
+            const nextHoliday = stateObjects[code].holidayObj.isHoliday(calcDate(new Date(), {
+                timeString: `${i}d`
+            }));
+
+            if (nextHoliday && nextHoliday.length > 0) {
+                if (!foundHolidays[nextHoliday[0].name]) {
+                    foundHolidays[nextHoliday[0].name] = {
+                        data: nextHoliday[0],
+                        countries: []
+                    }
+                }
+                foundHolidays[nextHoliday[0].name].countries.push(code);
             }
         }
 
-        return msgObj.reply("Es gibt keine Feiertage in den nächsten 90 Tagen...")
-    } else {
-        await msgObj.reply("Heute ist kein Feiertag!");
-    }
-}
-
-async function sendResponse(holiday: IsHolidayResult, msgObj: CommandInteraction, momentData: Moment = null) {
-    let dateString = "Heute";
-    if (momentData !== null) {
-        dateString = `Am ${momentData.date()}.${momentData.month() + 1}.${momentData.year()}`;
+        holidaysPerDay.push(foundHolidays);
     }
 
-    if (holiday.allStates) {
-        await msgObj.reply(`${dateString} ist ein Bundesweiter Feiertag: ${holiday.holidayName}!`);
-    } else {
-        const fullList = [];
-        for (const index in holiday.holidayStates) {
-            fullList.push(stateCodes[holiday.holidayStates[index]]);
+    if (!isNext) {
+        if (!await hasDayHolidayAndSendResponse(msgObj, holidaysPerDay[0], country)) {
+            return await msgObj.reply("Heute ist kein Feiertag!");
         }
-        let countryList =
-            fullList.length === 1 ?
-                fullList[0] :
-                `${fullList.slice(0, -1).join(", ")} und ${fullList[fullList.length - 1]}`;
+        return;
+    }
 
-        await msgObj.reply(`${dateString} ist ${holiday.holidayName} in ${countryList}!`);
+    for (const day of holidaysPerDay) {
+        if (await hasDayHolidayAndSendResponse(msgObj, day, country)) {
+            return;
+        }
+    }
+
+    return await msgObj.reply("Ich konnte keinen Feiertag in den nächsten 90 Tagen finden!");
+}
+
+async function hasDayHolidayAndSendResponse(msgObj, day, country): Promise<boolean> {
+    if (Object.keys(day).length > 0) {
+        let holidaysDataArray: HolidayData[] = [];
+
+        holidaysDataArray = Object.values(day);
+
+        //send here data for today
+        if (country !== "ALL") {
+            holidaysDataArray = filterDataByCountry(day, country);
+        }
+
+        if (holidaysDataArray.length === 0) return false;
+
+        await sendResponse(msgObj, holidaysDataArray);
+        return true;
+    }
+    return false;
+}
+
+function filterDataByCountry(holidays: { [name: string]: HolidayData }, country): HolidayData[] {
+    const result: HolidayData[] = [];
+    for (const name in holidays) {
+        const data: HolidayData = holidays[name];
+
+        if (data.countries.indexOf(country) > -1) {
+            result.push(data);
+        }
+    }
+    return result;
+}
+
+interface HolidayData {
+    data: HolidaysTypes.Holiday,
+    countries: string[]
+}
+
+function getDateString(date: Date): string {
+    if (new Date().toDateString() === date.toDateString()) {
+        return "Heute";
+    } else {
+        return "Am \`" + new Intl.DateTimeFormat("de", {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+            // @ts-ignore
+        }).format(new Date(date)) + "\`";
     }
 }
 
-interface IsHolidayResult {
-    allStates: boolean;
-    holidayName: string;
-    holidayStates: Array<string>;
-    testedStates: Array<string>;
+async function sendResponse(msgObj: CommandInteraction, holidayData: HolidayData[]) {
+    const date = getDateString(new Date(holidayData[0].data.date));
+
+    let msg = "";
+    for (const holiday of holidayData) {
+        if (msg.length > 0) msg+= `
+        
+`;
+
+        if (holiday.countries.indexOf("PUBLIC") === -1) {
+            msg += `${date} ist \`${holiday.data.name}\` in ${countryArrayToNamesString(holiday.countries)}`;
+        } else {
+            msg += `${date} ist \`${holiday.data.name}\`, ein bundesweiter Feiertag`;
+        }
+
+    }
+
+    await msgObj.reply(msg);
+}
+
+function countryArrayToNamesString(countries: string[]) {
+    const countryNames = [];
+    for (const short of countries) {
+        if (short === "PUBLIC") {
+            continue;
+        }
+
+        countryNames.push(stateCodes[short]);
+    }
+
+    return countryNames.join(", ").replace(/(.*)(, )(.*)/, "$1 und $3");
 }

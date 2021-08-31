@@ -68,14 +68,6 @@ class CommandHandler {
 
     }
 
-    /**
-     * Removes an Command from Handler
-     * @param identifier unique identifier of command provided as return from {@link registerCommand}
-     */
-    public deRegisterCommand(identifier: string) {
-        delete this._cmdList[identifier];
-    }
-
     get cmdList(): { [p: string]: ICommand } {
         return this._cmdList;
     }
