@@ -37,7 +37,7 @@ registerSlashCommand(
     new SlashCommand(
         new SlashCommandBuilder()
             .setDescription("Ist Feiertag / Welcher ist der nächste?")
-            .setName("tholiday")
+            .setName("holiday")
             .addBooleanOption(option =>
                 option
                     .setName("next")
