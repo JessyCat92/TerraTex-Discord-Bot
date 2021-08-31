@@ -26,7 +26,7 @@ const stateCodes = {
 }
 
 const stateCodeChoices = [];
-stateCodeChoices.push(["ALL", "Alle"]);
+stateCodeChoices.push(["Alle", "ALL"]);
 for (const code in stateCodes) {
     stateCodeChoices.push([stateCodes[code], code]);
 }
@@ -91,12 +91,12 @@ async function calcResponse(msgObj: CommandInteraction) {
     }
 
     // calculate all holidays of next 90 days
-    const holidaysPerDay = [];
+    const holidaysPerDay: { [name: string]: HolidayData }[] = [];
     for (let i = 0; i <= 90; i++) {
         let foundHolidays = {};
 
         for (const code in stateCodes) {
-            const nextHoliday =  stateObjects[code].holidayObj.isHoliday(calcDate(new Date(), {
+            const nextHoliday = stateObjects[code].holidayObj.isHoliday(calcDate(new Date(), {
                 timeString: `${i}d`
             }));
 
@@ -115,65 +115,100 @@ async function calcResponse(msgObj: CommandInteraction) {
     }
 
     if (!isNext) {
-        if (Object.keys(holidaysPerDay[0]).length > 0){
-            //send here data for today
-        } else {
+        if (!await hasDayHolidayAndSendResponse(msgObj, holidaysPerDay[0], country)) {
             return await msgObj.reply("Heute ist kein Feiertag!");
         }
+        return;
     }
 
-    // send data for future day
-    // @todo: send message per holiday and tell which states
-    // @todo: filter message by state
-}
-
-/*
-
-    const holidays = new Holidays({
-        country: "DE",
-        state: country !== "PUBLIC" ? country : null
-    }, {
-        languages: "de",
-         types: inclOptionals ? [
-            "public",
-            "optional",
-            "bank",
-        ] : [
-            "public"
-        ]
-    });
-
- const today = holidays.isHoliday(new Date());
-
- if (!today) {
-        if (isNext) {
-            for (let i = 1; i <= 90; i++) {
-                const nextHoliday = holidays.isHoliday(calcDate(new Date(), {
-                    timeString: `${i}d`
-                }));
-
-                if (nextHoliday && nextHoliday.length > 0) {
-                    return await sendResonse(msgObj, nextHoliday[0]);
-                }
-            }
-
-            await msgObj.reply("Heute und in den nächsten 90 Tagen ist kein Feiertag!");
-        } else {
-
+    for (const day of holidaysPerDay) {
+        if (await hasDayHolidayAndSendResponse(msgObj, day, country)) {
+            return;
         }
     }
- */
 
-async function sendResonse(msgObj: CommandInteraction, holiday: HolidaysTypes.Holiday) {
-    const date = new Intl.DateTimeFormat("de", {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-        // @ts-ignore
-    }).format(new Date(holiday.date));
+    return await msgObj.reply("Ich konnte keinen Feiertag in den nächsten 90 Tagen finden!");
+}
 
-    await msgObj.reply(
-        `Am ${date} ist ${holiday.name}.`
-    );
+async function hasDayHolidayAndSendResponse(msgObj, day, country): Promise<boolean> {
+    if (Object.keys(day).length > 0) {
+        let holidaysDataArray: HolidayData[] = [];
+
+        holidaysDataArray = Object.values(day);
+
+        //send here data for today
+        if (country !== "ALL") {
+            holidaysDataArray = filterDataByCountry(day, country);
+        }
+
+        if (holidaysDataArray.length === 0) return false;
+
+        await sendResponse(msgObj, holidaysDataArray);
+        return true;
+    }
+    return false;
+}
+
+function filterDataByCountry(holidays: { [name: string]: HolidayData }, country): HolidayData[] {
+    const result: HolidayData[] = [];
+    for (const name in holidays) {
+        const data: HolidayData = holidays[name];
+
+        if (data.countries.indexOf(country) > -1) {
+            result.push(data);
+        }
+    }
+    return result;
+}
+
+interface HolidayData {
+    data: HolidaysTypes.Holiday,
+    countries: string[]
+}
+
+function getDateString(date: Date): string {
+    if (new Date().toDateString() === date.toDateString()) {
+        return "Heute";
+    } else {
+        return "Am \`" + new Intl.DateTimeFormat("de", {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+            // @ts-ignore
+        }).format(new Date(date)) + "\`";
+    }
+}
+
+async function sendResponse(msgObj: CommandInteraction, holidayData: HolidayData[]) {
+    const date = getDateString(new Date(holidayData[0].data.date));
+
+    let msg = "";
+    for (const holiday of holidayData) {
+        if (msg.length > 0) msg+= `
+        
+`;
+
+        if (holiday.countries.indexOf("PUBLIC") === -1) {
+            msg += `${date} ist \`${holiday.data.name}\` in ${countryArrayToNamesString(holiday.countries)}`;
+        } else {
+            msg += `${date} ist \`${holiday.data.name}\`, ein bundesweiter Feiertag`;
+        }
+
+    }
+
+    await msgObj.reply(msg);
+}
+
+function countryArrayToNamesString(countries: string[]) {
+    const countryNames = [];
+    for (const short of countries) {
+        if (short === "PUBLIC") {
+            continue;
+        }
+
+        countryNames.push(stateCodes[short]);
+    }
+
+    return countryNames.join(", ").replace(/(.*)(, )(.*)/, "$1 und $3");
 }
