@@ -6,7 +6,6 @@ import Holidays, {HolidaysTypes} from "date-holidays"
 import {calcDate} from "../../utils/DateTime";
 
 const stateCodes = {
-//    ALL: "Alle",
     PUBLIC: "nur Bundesweite",
     BW: "Baden-Württemberg",
     BY: "Bayern",
@@ -27,9 +26,12 @@ const stateCodes = {
 }
 
 const stateCodeChoices = [];
+stateCodeChoices.push(["ALL", "Alle"]);
 for (const code in stateCodes) {
     stateCodeChoices.push([stateCodes[code], code]);
 }
+
+const stateObjects = {};
 
 registerSlashCommand(
     new SlashCommand(
@@ -69,12 +71,70 @@ async function calcResponse(msgObj: CommandInteraction) {
     const isNext = msgObj.options.getBoolean("next") || false;
     const inclOptionals = msgObj.options.getBoolean("optional") || false;
 
+    // create Holiday Objects per State
+    for (const code in stateCodes) {
+        stateObjects[code] = {
+            holidayObj: new Holidays({
+                country: "DE",
+                state: code !== "PUBLIC" ? code : null
+            }, {
+                languages: "de",
+                types: inclOptionals ? [
+                    "public",
+                    "optional",
+                    "bank",
+                ] : [
+                    "public"
+                ]
+            })
+        }
+    }
+
+    // calculate all holidays of next 90 days
+    const holidaysPerDay = [];
+    for (let i = 0; i <= 90; i++) {
+        let foundHolidays = {};
+
+        for (const code in stateCodes) {
+            const nextHoliday =  stateObjects[code].holidayObj.isHoliday(calcDate(new Date(), {
+                timeString: `${i}d`
+            }));
+
+            if (nextHoliday && nextHoliday.length > 0) {
+                if (!foundHolidays[nextHoliday[0].name]) {
+                    foundHolidays[nextHoliday[0].name] = {
+                        data: nextHoliday[0],
+                        countries: []
+                    }
+                }
+                foundHolidays[nextHoliday[0].name].countries.push(code);
+            }
+        }
+
+        holidaysPerDay.push(foundHolidays);
+    }
+
+    if (!isNext) {
+        if (Object.keys(holidaysPerDay[0]).length > 0){
+            //send here data for today
+        } else {
+            return await msgObj.reply("Heute ist kein Feiertag!");
+        }
+    }
+
+    // send data for future day
+    // @todo: send message per holiday and tell which states
+    // @todo: filter message by state
+}
+
+/*
+
     const holidays = new Holidays({
         country: "DE",
         state: country !== "PUBLIC" ? country : null
     }, {
         languages: "de",
-        types: inclOptionals ? [
+         types: inclOptionals ? [
             "public",
             "optional",
             "bank",
@@ -83,9 +143,9 @@ async function calcResponse(msgObj: CommandInteraction) {
         ]
     });
 
-    const today = holidays.isHoliday(new Date());
+ const today = holidays.isHoliday(new Date());
 
-    if (!today) {
+ if (!today) {
         if (isNext) {
             for (let i = 1; i <= 90; i++) {
                 const nextHoliday = holidays.isHoliday(calcDate(new Date(), {
@@ -99,10 +159,10 @@ async function calcResponse(msgObj: CommandInteraction) {
 
             await msgObj.reply("Heute und in den nächsten 90 Tagen ist kein Feiertag!");
         } else {
-            await msgObj.reply("Heute ist kein Feiertag!");
+
         }
     }
-}
+ */
 
 async function sendResonse(msgObj: CommandInteraction, holiday: HolidaysTypes.Holiday) {
     const date = new Intl.DateTimeFormat("de", {
