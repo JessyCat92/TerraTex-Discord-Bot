@@ -78,4 +78,4 @@ class CommandHandler {
 }
 
 const commandHandlerInstance = new CommandHandler();
-export = commandHandlerInstance
+export = commandHandlerInstance;
