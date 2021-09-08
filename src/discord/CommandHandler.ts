@@ -63,6 +63,7 @@ class CommandHandler {
      * @return void
      */
     public registerSlashCommand(cmd: SlashCommand) {
+        console.log(cmd);
         this._slashCmdList[cmd.cmds[0]] = cmd;
         [...discordClient.guilds.cache.values()][0].commands.create(cmd.command.toJSON());
 
