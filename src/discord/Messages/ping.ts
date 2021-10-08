@@ -1,4 +1,7 @@
+import ytdl from "ytdl-core";
 import {discordClient} from "../Client";
+import {createAudioPlayer, createAudioResource, getVoiceConnection} from "@discordjs/voice";
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 const userTables: {[index: number]: UserPingEntry} = {};
 
