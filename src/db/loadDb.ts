@@ -7,6 +7,7 @@ export async function loadDb() {
         database: process.env.DB_DATABASE,
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
+        host: process.env.DB_HOST || "localhost",
         synchronize: true,
         logging: false,
         entities: [
