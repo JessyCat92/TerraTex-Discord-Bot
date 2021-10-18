@@ -1,5 +1,5 @@
 import {ICommand} from "./ICommand";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder} from "@discordjs/builders";
 import {CommandInteraction} from "discord.js";
 
 
@@ -7,10 +7,11 @@ export class SlashCommand implements ICommand {
     cmds: string[];
     helpDescription: string;
     permLevel: number;
-    command: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+    command: Omit<SlashCommandBuilder|SlashCommandSubcommandsOnlyBuilder, "addSubcommand" | "addSubcommandGroup">;
     executeFunction: slashCommandExecute;
 
-    constructor(cmd: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">, executeFunc: slashCommandExecute) {
+    constructor(cmd: SlashCommandBuilder|SlashCommandSubcommandsOnlyBuilder|Omit<SlashCommandBuilder|SlashCommandSubcommandsOnlyBuilder, "addSubcommand" | "addSubcommandGroup">,
+                executeFunc: slashCommandExecute) {
         this.command = cmd;
         this.helpDescription = cmd.description;
         this.cmds = [cmd.name];

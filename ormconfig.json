@@ -7,7 +7,8 @@
   "password": "pw",
   "database": "db",
   "synchronize": true,
-  "logging": false,
+  "logging": "all",
+  "logger": "debug",
   "entities": [
     "src/db/entity/*"
   ],

@@ -94,3 +94,17 @@ export function getTimeGroupInSeconds(groupIdentifier: string): number {
         default: throw new Error(`unknown time string group identifier ${groupIdentifier}`);
     }
 }
+
+export function getDateString(date: Date, inclDay: boolean = true, markdayAsToday: boolean = true): string {
+    if (new Date().toDateString() === date.toDateString() && markdayAsToday) {
+        return "Heute";
+    } else {
+        return "am \`" + new Intl.DateTimeFormat("de", {
+            weekday: inclDay ? 'long' : undefined,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+            // @ts-ignore
+        }).format(new Date(date)) + "\`";
+    }
+}
