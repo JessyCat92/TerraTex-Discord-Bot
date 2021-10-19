@@ -5,6 +5,8 @@ import {Interaction} from "discord.js";
 import {Birthday} from "../../db/entities/Birthday";
 import {getDateString} from "../../utils/DateTime";
 import {Raw} from "typeorm";
+import {scheduleJob} from "node-schedule";
+import {discordClient} from "../Client";
 
 registerSlashCommand(
     new SlashCommand(new SlashCommandBuilder()
@@ -19,7 +21,7 @@ registerSlashCommand(
                             option =>
                                 option
                                     .setName("birthday")
-                                    .setDescription("Birthday in Format yyyy-mm-dd")
+                                    .setDescription("Birthday in Format yyyy-mm-dd or dd.mm.yyyy")
                                     .setRequired(true)
                         )
             )
@@ -57,7 +59,15 @@ async function calcResponse(interaction: Interaction) {
         return await interaction.reply("Dein Geburtstag wurde aus der Datenbank entfernt.");
 
     } else if (interaction.options.getSubcommand() === "set") {
-        const date = new Date(interaction.options.getString("birthday", true));
+        const birthdayOption = interaction.options.getString("birthday", true);
+        let date = new Date(birthdayOption);
+        if (birthdayOption.indexOf(".") !== -1) {
+            const parts = birthdayOption.split(".");
+            if (parts.length === 3) {
+                date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            }
+        }
+
         if ((date >= new Date("1900-01-01") && date <= new Date())) {
             let oldBirthday = await Birthday.findOne({
                 where: {
@@ -78,7 +88,7 @@ async function calcResponse(interaction: Interaction) {
             // @ts-ignore
             return await interaction.reply(`Dein Geburtstag ${getDateString(date, false, false)} wurde gespeichert`);
         } else {
-            return await interaction.reply("Incorrect Date Format: Use: YYYY-MM-DD - Y is Year, M is Month and D is day of month");
+            return await interaction.reply("Incorrect Date Format: Use: YYYY-MM-DD or DD.MM.YYYY - Y is Year, M is Month and D is day of month");
         }
     } else if (interaction.options.getSubcommand() === "check") {
         let allBirthday = await Birthday.find({
@@ -102,10 +112,37 @@ async function calcResponse(interaction: Interaction) {
 
         // interaction.channel.send(`Happy Birthday ${mention.join(", ")}`);
         await interaction.reply(`Heutige Geburtstage: ${mention.join(", ")}`)
+
+        sendBirthdays();
     }
 
 }
 
-// @todo: automatic send happy birthday
+scheduleJob('0 0 * * *', async function () {
+    await sendBirthdays()
+});
 
-// SELECT MONTH(birthday.birthday), ,DAY(Now()), Day(birthday.birthday) FROM birthday;
+
+async function sendBirthdays() {
+    let allBirthday = await Birthday.find({
+        where: {
+            birthday:
+                Raw(
+                    (alias) => {
+                        return `MONTH(${alias}) = MONTH(Now()) AND DAY(${alias}) = DAY(Now())`;
+                    }
+                )
+        }
+    });
+
+    const mention = [];
+    for (const birthday of allBirthday) {
+        // birthday.snowflake
+        const members = discordClient.members;
+        if (discordClient.users.cache.has(birthday.snowflake)) {
+            mention.push(discordClient.users.cache.get(birthday.snowflake).toString());
+        }
+    }
+
+    discordClient.channels.cache.get("749318494092394506").send(`Happy Birthday ${mention.join(", ")}`);
+}
