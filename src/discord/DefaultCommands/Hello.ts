@@ -28,9 +28,7 @@ async function sayHello(msgObj: Message | CommandInteraction) {
 }
 
 registerSlashCommand(
-    new SlashCommand(
-        new SlashCommandBuilder()
-            .setName("hallo")
-            .setDescription("Maid begrüße mich!"),
-        interaction => sayHello(interaction))
+    new SlashCommand(new SlashCommandBuilder()
+        .setName("hallo")
+        .setDescription("Maid begrüße mich!"), interaction => sayHello(interaction))
 );

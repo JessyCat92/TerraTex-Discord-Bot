@@ -24,28 +24,25 @@ registerCommand(
 );
 
 registerSlashCommand(
-    new SlashCommand(
-        new SlashCommandBuilder()
-            .setName("dice")
-            .setDescription("Würfel dein Glück :3")
-            .addIntegerOption(
-                option => option
-                    .setName("count")
-                    .setDescription("Wie oft willst du würfeln?")
-                    .setRequired(false)
-            )
-            .addIntegerOption(
-                option => option
-                    .setName("sides")
-                    .setDescription("Wie viele Seiten hat dein Würfel?")
-                    .setRequired(false)
-            ),
-        async (interaction: CommandInteraction) => {
-            dice(
-                interaction,
-                interaction.options.getInteger("sides", false) || 6,
-                interaction.options.getInteger("count", false) || 1
-            );
-        }
-    )
+    new SlashCommand(new SlashCommandBuilder()
+        .setName("dice")
+        .setDescription("Würfel dein Glück :3")
+        .addIntegerOption(
+            option => option
+                .setName("count")
+                .setDescription("Wie oft willst du würfeln?")
+                .setRequired(false)
+        )
+        .addIntegerOption(
+            option => option
+                .setName("sides")
+                .setDescription("Wie viele Seiten hat dein Würfel?")
+                .setRequired(false)
+        ), async (interaction: CommandInteraction) => {
+        dice(
+            interaction,
+            interaction.options.getInteger("sides", false) || 6,
+            interaction.options.getInteger("count", false) || 1
+        );
+    })
 );

@@ -3,7 +3,7 @@ import {CommandInteraction} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
 import Holidays, {HolidaysTypes} from "date-holidays"
-import {calcDate} from "../../utils/DateTime";
+import {calcDate, getDateString} from "../../utils/DateTime";
 
 const stateCodes = {
     PUBLIC: "nur Bundesweite",
@@ -34,36 +34,33 @@ for (const code in stateCodes) {
 const stateObjects = {};
 
 registerSlashCommand(
-    new SlashCommand(
-        new SlashCommandBuilder()
-            .setDescription("Ist Feiertag / Welcher ist der nächste?")
-            .setName("holiday")
-            .addBooleanOption(option =>
+    new SlashCommand(new SlashCommandBuilder()
+        .setDescription("Ist Feiertag / Welcher ist der nächste?")
+        .setName("holiday")
+        .addBooleanOption(option =>
+            option
+                .setName("next")
+                .setDescription("Nächster?")
+                .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName("country")
+                .setDescription("Bundesland")
+                .setRequired(false)
+                .addChoices(
+                    stateCodeChoices
+                )
+        )
+        .addBooleanOption(
+            option =>
                 option
-                    .setName("next")
-                    .setDescription("Nächster?")
+                    .setName("optional")
+                    .setDescription("Inklusive optionaller Brückentage?")
                     .setRequired(false)
-            )
-            .addStringOption(option =>
-                option
-                    .setName("country")
-                    .setDescription("Bundesland")
-                    .setRequired(false)
-                    .addChoices(
-                        stateCodeChoices
-                    )
-            )
-            .addBooleanOption(
-                option =>
-                    option
-                        .setName("optional")
-                        .setDescription("Inklusive optionaller Brückentage?")
-                        .setRequired(false)
-            ),
-        async interaction => {
-            await calcResponse(interaction);
-        }
-    )
+        ), async interaction => {
+        await calcResponse(interaction);
+    })
 );
 
 async function calcResponse(msgObj: CommandInteraction) {
@@ -164,20 +161,6 @@ function filterDataByCountry(holidays: { [name: string]: HolidayData }, country)
 interface HolidayData {
     data: HolidaysTypes.Holiday,
     countries: string[]
-}
-
-function getDateString(date: Date): string {
-    if (new Date().toDateString() === date.toDateString()) {
-        return "Heute";
-    } else {
-        return "Am \`" + new Intl.DateTimeFormat("de", {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-            // @ts-ignore
-        }).format(new Date(date)) + "\`";
-    }
 }
 
 async function sendResponse(msgObj: CommandInteraction, holidayData: HolidayData[]) {

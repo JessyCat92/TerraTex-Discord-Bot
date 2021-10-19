@@ -11,7 +11,6 @@ async function startApplication() {
     for (const k in result) {
         process.env[result[k].groups.key] = result[k].groups.value;
     }
-    // @todo: do we have to set locale to german?
 
     await loadDb();
     await createClient();
