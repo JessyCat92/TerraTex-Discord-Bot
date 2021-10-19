@@ -110,10 +110,12 @@ async function calcResponse(interaction: Interaction) {
             }
         }
 
-        // interaction.channel.send(`Happy Birthday ${mention.join(", ")}`);
-        await interaction.reply(`Heutige Geburtstage: ${mention.join(", ")}`)
+        if (mention.length !== 0 ) {
+            await interaction.reply(`Heutige Geburtstage: ${mention.join(", ")}`);
+        } else {
+            await interaction.reply(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
+        }
 
-        sendBirthdays();
     }
 
 }
@@ -144,5 +146,9 @@ async function sendBirthdays() {
         }
     }
 
-    discordClient.channels.cache.get("749318494092394506").send(`Happy Birthday ${mention.join(", ")}`);
+    if (mention.length !== 0 ) {
+        discordClient.channels.cache.get("749318494092394506").send(`Happy Birthday ${mention.join(", ")}`);
+    } else {
+        discordClient.channels.cache.get("749318494092394506").send(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
+    }
 }
