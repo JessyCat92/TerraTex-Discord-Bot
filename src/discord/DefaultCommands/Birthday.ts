@@ -56,7 +56,7 @@ async function calcResponse(interaction: Interaction) {
             await oldBirthday.remove();
         }
 
-        return await interaction.reply("Dein Geburtstag wurde aus der Datenbank entfernt.");
+        return await interaction.reply({content: "Dein Geburtstag wurde aus der Datenbank entfernt.", ephemeral: true});
 
     } else if (interaction.options.getSubcommand() === "set") {
         const birthdayOption = interaction.options.getString("birthday", true);
@@ -85,10 +85,10 @@ async function calcResponse(interaction: Interaction) {
 
             await oldBirthday.save();
 
-            // @ts-ignore
-            return await interaction.reply(`Dein Geburtstag ${getDateString(date, false, false)} wurde gespeichert`);
+            discordClient.channels.cache.get("749318494092394506").send(`Jemand hat seinen Geburtstag eingetrage. Du willst auch Geburtstagsgrüße? \`Benutze /birthday set\``);
+            return await interaction.reply({content: `Dein Geburtstag ${getDateString(date, false, false)} wurde gespeichert`, ephemeral: true});
         } else {
-            return await interaction.reply("Incorrect Date Format: Use: YYYY-MM-DD or DD.MM.YYYY - Y is Year, M is Month and D is day of month");
+            return await interaction.reply({content: "Incorrect Date Format: Use: YYYY-MM-DD or DD.MM.YYYY - Y is Year, M is Month and D is day of month", ephemeral: true});
         }
     } else if (interaction.options.getSubcommand() === "check") {
         let allBirthday = await Birthday.find({
@@ -111,9 +111,9 @@ async function calcResponse(interaction: Interaction) {
         }
 
         if (mention.length !== 0 ) {
-            await interaction.reply(`Heutige Geburtstage: ${mention.join(", ")}`);
+            await interaction.reply({content: `Heutige Geburtstage: ${mention.join(", ")}`, ephemeral: true});
         } else {
-            await interaction.reply(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
+            await interaction.reply({content: `Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``, ephemeral: true});
         }
 
     }
@@ -149,6 +149,8 @@ async function sendBirthdays() {
     if (mention.length !== 0 ) {
         discordClient.channels.cache.get("749318494092394506").send(`Happy Birthday ${mention.join(", ")}`);
     } else {
-        discordClient.channels.cache.get("749318494092394506").send(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
+        if (Math.floor(Math.random() * 10) === 5) {
+            discordClient.channels.cache.get("749318494092394506").send(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
+        }
     }
 }
