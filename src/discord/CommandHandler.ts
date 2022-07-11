@@ -42,6 +42,8 @@ class CommandHandler {
     private async executeSlashCommand(interaction: CommandInteraction) {
         if(!interaction.isCommand()) return;
 
+        // @todo: add permission check here
+
         // @ts-ignore
         CommandHandler._slashCmdList[interaction.commandName].execute(interaction);
     }
