@@ -26,9 +26,9 @@ const stateCodes = {
 }
 
 const stateCodeChoices = [];
-stateCodeChoices.push(["Alle", "ALL"]);
+stateCodeChoices.push({name: "Alle",value: "ALL"});
 for (const code in stateCodes) {
-    stateCodeChoices.push([stateCodes[code], code]);
+    stateCodeChoices.push({name: stateCodes[code], value: code});
 }
 
 const stateObjects = {};
@@ -48,9 +48,7 @@ registerSlashCommand(
                 .setName("country")
                 .setDescription("Bundesland")
                 .setRequired(false)
-                .addChoices(
-                    stateCodeChoices
-                )
+                .addChoices(...stateCodeChoices)
         )
         .addBooleanOption(
             option =>

@@ -1,7 +1,10 @@
-import {createConnection} from "typeorm";
+import {DataSource} from "typeorm";
+
+
+export let AppDataSource: DataSource;
 
 export async function loadDb() {
-    await createConnection({
+    AppDataSource = new DataSource({
         name: "default",
         type: "mariadb",
         database: process.env.DB_DATABASE,
@@ -18,11 +21,7 @@ export async function loadDb() {
         ],
         migrations: [
             "src/db/migration/*"
-        ],
-        cli: {
-            entitiesDir: "src/db/entities",
-            migrationsDir: "src/db/migration",
-            subscribersDir: "src/db/subscriber"
-        }
+        ]
     });
+    await AppDataSource.initialize();
 }

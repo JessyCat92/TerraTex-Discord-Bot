@@ -1,7 +1,8 @@
-import {loadDb} from "./db/loadDb";
+
 import {createClient, initDiscordClient} from "./discord/Client";
 import * as fs from "fs";
 import "moment/locale/de";
+import {loadDb} from "./db/loadDb";
 
 async function startApplication() {
     // load enviroment
