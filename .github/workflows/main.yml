@@ -14,7 +14,7 @@ jobs:
     steps:
 #      - run: Remove-Item -Recurse -ErrorAction SilentlyContinue -Force D:\CI_CD\actions-runner\_work\minecraft_generator\minecraft_generator\*
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2.1.2
+      - uses: actions/setup-node@v3.4.0
         with:
           node-version: 18.03
       - name: write env file
