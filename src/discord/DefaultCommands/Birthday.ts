@@ -1,7 +1,7 @@
 import {registerSlashCommand} from "../CommandHandler";
 import {SlashCommand} from "../defintions/SlashCommand";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {Interaction} from "discord.js";
+import {BaseGuildTextChannel, CommandInteraction, CommandInteractionOptionResolver, Interaction} from "discord.js";
 import {Birthday} from "../../db/entities/Birthday";
 import {getDateString} from "../../utils/DateTime";
 import {Raw} from "typeorm";
@@ -36,16 +36,15 @@ registerSlashCommand(
                     .setName("check")
             )
         ,
-        async interaction => {
-            await calcResponse(interaction);
-        }
+        calcResponse
     )
 );
 
-async function calcResponse(interaction: Interaction) {
+async function calcResponse(interaction: CommandInteraction) {
     if (!interaction.isCommand()) return;
+    const options = interaction.options as CommandInteractionOptionResolver;
 
-    if (interaction.options.getSubcommand() === "remove") {
+    if (options.getSubcommand() === "remove") {
         let oldBirthday = await Birthday.findOne({
             where: {
                 snowflake: interaction.user.id
@@ -58,8 +57,8 @@ async function calcResponse(interaction: Interaction) {
 
         return await interaction.reply({content: "Dein Geburtstag wurde aus der Datenbank entfernt.", ephemeral: true});
 
-    } else if (interaction.options.getSubcommand() === "set") {
-        const birthdayOption = interaction.options.getString("birthday", true);
+    } else if (options.getSubcommand() === "set") {
+        const birthdayOption = options.getString("birthday", true);
         let date = new Date(birthdayOption);
         if (birthdayOption.indexOf(".") !== -1) {
             const parts = birthdayOption.split(".");
@@ -85,12 +84,13 @@ async function calcResponse(interaction: Interaction) {
 
             await oldBirthday.save();
 
-            discordClient.channels.cache.get("749318494092394506").send(`Jemand hat seinen Geburtstag eingetrage. Du willst auch Geburtstagsgrüße? \`Benutze /birthday set\``);
+            await (discordClient.channels.cache.get("749318494092394506") as BaseGuildTextChannel)
+                .send(`Jemand hat seinen Geburtstag eingetrage. Du willst auch Geburtstagsgrüße? \`Benutze /birthday set\``);
             return await interaction.reply({content: `Dein Geburtstag ${getDateString(date, false, false)} wurde gespeichert`, ephemeral: true});
         } else {
             return await interaction.reply({content: "Incorrect Date Format: Use: YYYY-MM-DD or DD.MM.YYYY - Y is Year, M is Month and D is day of month", ephemeral: true});
         }
-    } else if (interaction.options.getSubcommand() === "check") {
+    } else if (options.getSubcommand() === "check") {
         let allBirthday = await Birthday.find({
             where: {
                 birthday:
@@ -140,17 +140,16 @@ async function sendBirthdays() {
     const mention = [];
     for (const birthday of allBirthday) {
         // birthday.snowflake
-        const members = discordClient.members;
         if (discordClient.users.cache.has(birthday.snowflake)) {
             mention.push(discordClient.users.cache.get(birthday.snowflake).toString());
         }
     }
 
     if (mention.length !== 0 ) {
-        discordClient.channels.cache.get("749318494092394506").send(`Happy Birthday ${mention.join(", ")}`);
+        await (discordClient.channels.cache.get("749318494092394506") as BaseGuildTextChannel).send(`Happy Birthday ${mention.join(", ")}`);
     } else {
         if (Math.floor(Math.random() * 10) === 5) {
-            discordClient.channels.cache.get("749318494092394506").send(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
+            await (discordClient.channels.cache.get("749318494092394506") as BaseGuildTextChannel).send(`Heute hat niemand Geburtstag... Du hast heute? Setze dein Geburtstag mit \`birthday set\``);
         }
     }
 }

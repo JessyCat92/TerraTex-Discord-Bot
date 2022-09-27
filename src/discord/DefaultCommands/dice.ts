@@ -1,6 +1,6 @@
 import {registerCommand, registerSlashCommand} from "../CommandHandler";
 import {Command} from "../defintions/Command";
-import {CommandInteraction, Message} from "discord.js";
+import {CommandInteraction, CommandInteractionOptionResolver, Message} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
 
@@ -39,10 +39,12 @@ registerSlashCommand(
                 .setDescription("Wie viele Seiten hat dein Würfel?")
                 .setRequired(false)
         ), async (interaction: CommandInteraction) => {
+            if (!interaction.isCommand()) return;
+            const options = interaction.options as CommandInteractionOptionResolver;
         dice(
             interaction,
-            interaction.options.getInteger("sides", false) || 6,
-            interaction.options.getInteger("count", false) || 1
+            options.getInteger("sides", false) || 6,
+            options.getInteger("count", false) || 1
         );
     })
 );

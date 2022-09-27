@@ -1,5 +1,5 @@
 import {registerSlashCommand} from "../CommandHandler";
-import {CommandInteraction} from "discord.js";
+import {CommandInteraction, CommandInteractionOptionResolver} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
 import Holidays, {HolidaysTypes} from "date-holidays"
@@ -62,9 +62,12 @@ registerSlashCommand(
 );
 
 async function calcResponse(msgObj: CommandInteraction) {
-    const country = msgObj.options.getString("country") || "PUBLIC";
-    const isNext = msgObj.options.getBoolean("next") || false;
-    const inclOptionals = msgObj.options.getBoolean("optional") || false;
+    if (!msgObj.isCommand()) return;
+    const options = msgObj.options as CommandInteractionOptionResolver;
+
+    const country = options.getString("country") || "PUBLIC";
+    const isNext = options.getBoolean("next") || false;
+    const inclOptionals = options.getBoolean("optional") || false;
 
     // create Holiday Objects per State
     for (const code in stateCodes) {

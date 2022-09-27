@@ -1,22 +1,26 @@
 import {registerCommand} from "../../CommandHandler";
 import {Command} from "../../defintions/Command";
-import {Message, MessageEmbed} from "discord.js";
+import {Message, EmbedBuilder} from "discord.js";
 import {Permissions} from "../../../db/entities/Permissions";
 import {In} from "typeorm";
 
-registerCommand(new Command(4, ["perm"], (msgObj, subCommand,...perams) => {
+registerCommand(new Command(4, ["perm"], (msgObj, subCommand, ...perams) => {
     switch (subCommand) {
-        case "add": return addPermission(msgObj, ...perams);
-        case "remove": return removePermission(msgObj);
-        case "list": return listPermission(msgObj);
+        case "add":
+            return addPermission(msgObj, ...perams);
+        case "remove":
+            return removePermission(msgObj);
+        case "list":
+            return listPermission(msgObj);
         case "help":
-        default: return helpPermission(msgObj);
+        default:
+            return helpPermission(msgObj);
     }
 }).setDescription("Befehl zum Managen der Permissions"));
 
 async function addPermission(msgObj: Message, ...params) {
     const permLevelObj = Number(params[0]);
-    if(permLevelObj && msgObj.mentions.roles.size >= 1) {
+    if (permLevelObj && msgObj.mentions.roles.size >= 1) {
         const permLevel = permLevelObj.valueOf();
         const newRoles = [];
 
@@ -51,7 +55,7 @@ async function addPermission(msgObj: Message, ...params) {
 }
 
 async function removePermission(msgObj: Message) {
-    if(msgObj.mentions.roles.size >= 1) {
+    if (msgObj.mentions.roles.size >= 1) {
         try {
             const snowsflakes = [];
             for (const role of [...msgObj.mentions.roles.values()]) {
@@ -73,7 +77,7 @@ async function removePermission(msgObj: Message) {
 
 async function listPermission(msgObj: Message) {
     const allPerms = await Permissions.find();
-    const groupsSorted: {[permLevel: number]: string[]} = {
+    const groupsSorted: { [permLevel: number]: string[] } = {
         0: [], 1: [], 2: [], 3: [], 4: []
     };
 
@@ -92,12 +96,15 @@ async function listPermission(msgObj: Message) {
         }
     }
 
-    const embMsg = new MessageEmbed();
+
+    const embMsg = new EmbedBuilder();
     embMsg
-        .addField("PermLevel 1 = VIP Functions", sendStrings[0])
-        .addField("PermLevel 2 = Moderative Functions", sendStrings[1])
-        .addField("PermLevel 3 = Administrative Functions", sendStrings[2])
-        .addField("PermLevel 4 = Owner Functions", sendStrings[3]);
+        .addFields(
+            {name: "PermLevel 1 = VIP Functions", value: sendStrings[0]},
+            {name: "PermLevel 2 = Moderative Functions", value: sendStrings[1]},
+            {name: "PermLevel 3 = Administrative Functions", value: sendStrings[2]},
+            {name: "PermLevel 4 = Owner Functions", value: sendStrings[3]}
+        );
 
     return msgObj.reply({content: "Permission List", embeds: [embMsg]});
 }

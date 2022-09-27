@@ -1,5 +1,5 @@
 import {registerCommand, cmdList} from "../CommandHandler"
-import {Message, MessageEmbed} from "discord.js";
+import {EmbedBuilder, Message} from "discord.js";
 import {Command} from "../defintions/Command";
 import {hasPermissionLevel} from "../Permission";
 
@@ -45,11 +45,19 @@ registerCommand(new Command(0, ["help", "hilfe"], async (msg: Message) => {
                 desc += `${cmdObj.value}\n`;
             }
 
-            const msgEmb = new MessageEmbed();
+            const msgEmb = new EmbedBuilder();
             msgEmb.setTitle(titles[level]);
             msgEmb.setColor(colors[level]);
-            msgEmb.addField("Cmds", cmds, true);
-            msgEmb.addField("Description", desc, true);
+            msgEmb.addFields(
+                {
+                    name: "Cmds",
+                    value: cmds,
+                    inline: true
+                }, {
+                    name: "Description",
+                    value: desc,
+                    inline: true
+                });
 
             await msg.author.send({embeds: [msgEmb]});
         }

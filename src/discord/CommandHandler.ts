@@ -3,7 +3,7 @@ import {ICommand} from "./defintions/ICommand";
 import {v4 as uuid} from "uuid";
 import {hasPermissionLevel} from "./Permission";
 import {SlashCommand} from "./defintions/SlashCommand";
-import {CommandInteraction} from "discord.js";
+import {CommandInteraction, Interaction} from "discord.js";
 
 class CommandHandler {
 
@@ -39,7 +39,7 @@ class CommandHandler {
         }
     }
 
-    private async executeSlashCommand(interaction: CommandInteraction) {
+    private async executeSlashCommand(interaction: Interaction) {
         if(!interaction.isCommand()) return;
 
         // @todo: add permission check here
@@ -79,5 +79,9 @@ class CommandHandler {
     }
 }
 
-const commandHandlerInstance = new CommandHandler();
-export = commandHandlerInstance;
+export const commandHandlerInstance: CommandHandler = new CommandHandler();
+export const commandHandler = commandHandlerInstance;
+export const registerCommand = commandHandlerInstance.registerCommand;
+export const registerSlashCommand = commandHandlerInstance.registerSlashCommand;
+export const cmdList = commandHandlerInstance.cmdList;
+export const slashCmdList = commandHandlerInstance.slashCmdList;
