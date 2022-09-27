@@ -1,10 +1,7 @@
 import {createAudioPlayer, createAudioResource, joinVoiceChannel, NoSubscriberBehavior} from "@discordjs/voice";
-import {Converter} from "ffmpeg-stream";
-import {Stream} from "node-ffmpeg-stream";
-import ytdl from "ytdl-core";
+
 import {registerCommand, registerSlashCommand} from "../CommandHandler";
-import {Command} from "../defintions/Command";
-import {CommandInteraction, CommandInteractionOptionResolver, Message} from "discord.js";
+import {CommandInteraction} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {SlashCommand} from "../defintions/SlashCommand";
 
