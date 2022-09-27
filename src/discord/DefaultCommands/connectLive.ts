@@ -35,10 +35,9 @@ async function calcResponse(msgObj: CommandInteraction) {
 
     const player = createAudioPlayer({
         behaviors: {
-            noSubscriber: NoSubscriberBehavior.Pause,
+            noSubscriber: NoSubscriberBehavior.Play,
         },
     });
-
 
     const resource = createAudioResource("rtsp://root.terratex.eu:8554/alex_and_me", {
         silencePaddingFrames: 1,
