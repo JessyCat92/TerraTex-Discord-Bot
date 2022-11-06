@@ -19,7 +19,8 @@ export async function createClient () {
             GatewayIntentBits.GuildMessageTyping,
             GatewayIntentBits.DirectMessages,
             GatewayIntentBits.DirectMessageReactions,
-            GatewayIntentBits.DirectMessageTyping
+            GatewayIntentBits.DirectMessageTyping,
+            GatewayIntentBits.MessageContent
         ],
         failIfNotExists: true
     });
